@@ -12,11 +12,6 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
-dependencies {
-    add("kspAndroid", libs.room.compiler)
-    add("kspCommonMainMetadata", libs.room.compiler)
-}
-
 kotlin {
     androidTarget {
         compilations.all {
@@ -89,4 +84,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    add("kspAndroid", libs.room.compiler)
+    add("kspCommonMainMetadata", libs.room.compiler)
 }
