@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.panyou.md3todo.domain.model.Task
 import kotlinx.coroutines.launch
 
-@OptApi(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyDayScreen(
     tasks: List<Task>,
