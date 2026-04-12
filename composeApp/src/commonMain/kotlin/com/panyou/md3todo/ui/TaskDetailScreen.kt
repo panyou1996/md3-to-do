@@ -53,7 +53,7 @@ fun TaskDetailScreen(
                         isLoadingAi = false
                     }
                 },
-                icon = { Icon(Icons.Default.AutoAwesome, contentDescription = "AI") },
+                icon = { Icon(Icons.Default.Star, contentDescription = "AI") },
                 text = { Text("AI Breakdown") }
             )
         }
