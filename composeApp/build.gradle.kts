@@ -20,6 +20,7 @@ kotlin {
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.material)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -28,6 +29,11 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.material.kolor)
+            implementation(libs.lifecycle.viewmodel.compose)
         }
     }
 }
