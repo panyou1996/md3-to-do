@@ -34,6 +34,9 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.material.kolor)
             implementation(libs.lifecycle.viewmodel.compose)
+            
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
     }
 }
@@ -66,5 +69,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+}getCompatibility = JavaVersion.VERSION_17
     }
 }
