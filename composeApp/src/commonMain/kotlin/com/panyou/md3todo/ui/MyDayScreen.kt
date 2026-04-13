@@ -71,7 +71,7 @@ fun MyDayScreen(
                 Row(
                     modifier = Modifier
                         .padding(16.dp)
-                        .windowInsetsPadding(WindowInsets.ime)
+                        .imePadding()
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
