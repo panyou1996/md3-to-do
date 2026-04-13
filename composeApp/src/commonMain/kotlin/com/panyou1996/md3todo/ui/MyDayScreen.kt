@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,17 +28,17 @@ fun MyDayScreen(
     onTaskCheckChanged: (Task, Boolean) -> Unit
 ) {
     var newTaskTitle by remember { mutableStateOf("") }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
+            CenterAlignedTopAppBar(
                 title = { 
                     Text(
                         "Inbox", 
-                        fontWeight = FontWeight.Black,
-                        fontSize = 32.sp
+                        fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.titleLarge
                     ) 
                 },
                 navigationIcon = {
@@ -46,61 +47,40 @@ fun MyDayScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More")
-                    }
+                    IconButton(onClick = { }) { Icon(Icons.Default.Search, contentDescription = "Search") }
+                    IconButton(onClick = { }) { Icon(Icons.Default.MoreVert, contentDescription = "More") }
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                )
             )
         },
-        bottomBar = {
-            Surface(
-                tonalElevation = 3.dp,
-                modifier = Modifier.fillMaxWidth()
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /* Handle Fab */ },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = CircleShape,
+                modifier = Modifier.padding(bottom = 16.dp).size(56.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .imePadding()
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextField(
-                        value = newTaskTitle,
-                        onValueChange = { newTaskTitle = it },
-                        placeholder = { Text("Add a task to Inbox...") },
-                        modifier = Modifier.weight(1f),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                            unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                            disabledContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                            focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                            unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                        ),
-                        singleLine = true
-                    )
-                    if (newTaskTitle.isNotBlank()) {
-                        IconButton(onClick = {
-                            onAddTask(newTaskTitle)
-                            newTaskTitle = ""
-                        }) {
-                            Icon(Icons.Default.Add, tint = MaterialTheme.colorScheme.primary)
-                        }
-                    }
-                }
+                Icon(Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(28.dp))
             }
         }
     ) { padding ->
         LazyColumn(
             contentPadding = padding,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
         ) {
-            val todayTasks = tasks.filter { !it.isCompleted }
+            val pendingTasks = tasks.filter { !it.isCompleted }
             val completedTasks = tasks.filter { it.isCompleted }
             
-            if (todayTasks.isNotEmpty()) {
-                item { SectionHeader("Today", todayTasks.size) }
-                items(todayTasks) { task ->
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+
+            if (pendingTasks.isNotEmpty()) {
+                item { SectionHeader("Today", pendingTasks.size) }
+                items(pendingTasks) { task ->
                     TaskCard(
                         task = task,
                         onClick = { onTaskClick(task) },
@@ -130,21 +110,21 @@ fun SectionHeader(title: String, count: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = 24.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.primary
             )
         )
         Text(
             text = "$count",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         )
     }
 }

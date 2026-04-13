@@ -1,11 +1,14 @@
 package com.panyou.md3todo.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,6 +18,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.panyou.md3todo.ui.viewmodel.TaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,70 +29,98 @@ fun StatsScreen(onBack: () -> Unit, taskViewModel: TaskViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Statistics", fontWeight = FontWeight.Black) },
+                title = { Text("Focus Statistics", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.Close, contentDescription = "Close")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share")
-                    }
-                }
+                    IconButton(onClick = { }) { Icon(Icons.Default.Share, contentDescription = "Share") }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            // Metrics Grid - Pixel Perfect Dida Style
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.height(240.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.height(220.dp)
             ) {
-                item { StatCard("Daily Tasks", "${stats.dailyCompleted}", "+3") }
-                item { StatCard("Focus Time", "${stats.focusTimeMinutes / 60}h ${stats.focusTimeMinutes % 60}m", "+15m") }
-                item { StatCard("Total Tasks", "${stats.totalCompleted}", "") }
-                item { StatCard("Streak", "${stats.streakDays} days", "🔥") }
+                item { MetricItem("Today's Tasks", "${stats.dailyCompleted}", "+3", MaterialTheme.colorScheme.primary) }
+                item { MetricItem("Focus Time", "${stats.focusTimeMinutes}m", "+15m", androidx.compose.ui.graphics.Color(0xFF2196F3)) }
+                item { MetricItem("Total Tasks", "${stats.totalCompleted}", "", MaterialTheme.colorScheme.secondary) }
+                item { MetricItem("Streak", "${stats.streakDays}d", "🔥", androidx.compose.ui.graphics.Color(0xFFFF9800)) }
             }
 
+            // Task Distribution Card
             Card(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Task Distribution", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(24.dp))
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Focus Details", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                        Text("Today", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                    }
                     
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(200.dp)) {
-                        val primaryColor = MaterialTheme.colorScheme.primary
-                        val secondaryColor = MaterialTheme.colorScheme.secondary
-                        val tertiaryColor = MaterialTheme.colorScheme.tertiary
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(180.dp)) {
+                        val colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.tertiary,
+                            MaterialTheme.colorScheme.secondaryContainer
+                        )
                         
                         Canvas(modifier = Modifier.fillMaxSize()) {
-                            val strokeWidth = 25.dp.toPx()
-                            var currentAngle = -90f
-                            
-                            // Dynamically draw arcs based on stats.distribution
-                            val colors = listOf(primaryColor, secondaryColor, tertiaryColor)
-                            stats.distribution.forEachIndexed { index, percent ->
-                                val sweep = percent * 360f
+                            val strokeWidth = 22.dp.toPx()
+                            var startAngle = -90f
+                            stats.distribution.forEachIndexed { index, sweep ->
+                                val sweepAngle = sweep * 360f
                                 drawArc(
-                                    color = colors[index % colors.size], 
-                                    startAngle = currentAngle, 
-                                    sweepAngle = sweep,
-                                    useCenter = false, 
+                                    color = colors[index % colors.size],
+                                    startAngle = startAngle,
+                                    sweepAngle = sweepAngle,
+                                    useCenter = false,
                                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                                 )
-                                currentAngle += sweep
+                                startAngle += sweepAngle
                             }
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Total", style = MaterialTheme.typography.labelMedium)
-                            Text("100%", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+                            Text("${stats.focusTimeMinutes}m", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+                            Text("Total", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    // Legend
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        LegendItem("Work", MaterialTheme.colorScheme.primary)
+                        LegendItem("Study", MaterialTheme.colorScheme.tertiary)
+                        LegendItem("Other", MaterialTheme.colorScheme.secondaryContainer)
                     }
                 }
             }
@@ -97,22 +129,31 @@ fun StatsScreen(onBack: () -> Unit, taskViewModel: TaskViewModel) {
 }
 
 @Composable
-fun StatCard(title: String, value: String, trend: String) {
+fun MetricItem(title: String, value: String, sub: String, color: androidx.compose.ui.graphics.Color) {
     Card(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                if (trend.isNotEmpty()) {
+                Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = color)
+                if (sub.isNotEmpty()) {
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(trend, style = MaterialTheme.typography.labelSmall, color = if (trend.contains("+")) androidx.compose.ui.graphics.Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary)
+                    Text(sub, style = MaterialTheme.typography.labelSmall, color = if (sub.contains("+")) androidx.compose.ui.graphics.Color(0xFF4CAF50) else color)
                 }
             }
         }
+    }
+}
+
+@Composable
+fun LegendItem(label: String, color: androidx.compose.ui.graphics.Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(label, style = MaterialTheme.typography.labelSmall)
     }
 }

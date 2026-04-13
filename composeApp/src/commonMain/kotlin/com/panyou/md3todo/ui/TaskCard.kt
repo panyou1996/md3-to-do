@@ -15,20 +15,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.panyou.md3todo.domain.model.Task
 
 @Composable
-fun TaskCard(task: Task, onClick: () -> Unit, onCheckChanged: (Boolean) -> Unit) {
+fun TaskCard(
+    task: Task, 
+    onClick: () -> Unit, 
+    onCheckChanged: (Boolean) -> Unit
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp)
             .clickable { onClick() },
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(20.dp), // MD3 Medium rounding
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp
+        tonalElevation = 1.dp,
+        shadowElevation = 0.dp
     ) {
         Row(
             modifier = Modifier
@@ -36,7 +42,7 @@ fun TaskCard(task: Task, onClick: () -> Unit, onCheckChanged: (Boolean) -> Unit)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Circular Checkbox (Dida style)
+            // Circular Checkbox - Pixel Perfect Dida Style
             Box(
                 modifier = Modifier
                     .size(24.dp)
@@ -48,7 +54,7 @@ fun TaskCard(task: Task, onClick: () -> Unit, onCheckChanged: (Boolean) -> Unit)
                     .border(
                         width = 2.dp,
                         color = if (task.isCompleted) MaterialTheme.colorScheme.primary 
-                                else MaterialTheme.colorScheme.outline,
+                                else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                         shape = CircleShape
                     )
                     .clickable { onCheckChanged(!task.isCompleted) },
@@ -70,29 +76,30 @@ fun TaskCard(task: Task, onClick: () -> Unit, onCheckChanged: (Boolean) -> Unit)
                 Text(
                     text = task.title,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 17.sp,
-                        textDecoration = if (task.isCompleted) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
+                        textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null
                     ),
-                    color = if (task.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) 
+                    color = if (task.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) 
                             else MaterialTheme.colorScheme.onSurface
                 )
                 
-                if (task.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                if (task.description.isNotBlank() && !task.isCompleted) {
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = task.description.take(50) + if (task.description.length > 50) "..." else "",
+                        text = task.description,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
                     )
                 }
             }
 
-            // Right-aligned metadata (Time/Date)
-            if (task.myDayDate != null) {
+            // Priority Indicator or Time (Right Aligned)
+            if (task.dueDate != null) {
                 Text(
-                    text = "09:00", // Placeholder for actual time logic
-                    style = MaterialTheme.typography.labelMedium,
+                    text = "09:00", // Logic needed for real time formatting
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(start = 8.dp)
                 )
