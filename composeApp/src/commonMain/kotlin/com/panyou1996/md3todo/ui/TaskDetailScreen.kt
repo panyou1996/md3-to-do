@@ -11,22 +11,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.panyou.md3todo.domain.model.Task
-import com.panyou.md3todo.ui.viewmodel.TaskViewModel
-import kotlinx.coroutines.launch
+import com.panyou.md3todo.ui.viewmodel.TaskDetailViewModel
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDetailScreen(
     taskId: String,
-    onBack: () -> Unit,
-    taskViewModel: TaskViewModel
+    onBack: () -> Unit
 ) {
-    val tasks by taskViewModel.tasks.collectAsState()
-    val task = tasks.find { it.id == taskId } ?: return
+    val viewModel = koinViewModel<TaskDetailViewModel>(parameters = { parametersOf(taskId) })
+    val task by viewModel.task.collectAsState()
+    val isLoadingAi by viewModel.isLoadingAi.collectAsState()
     
-    val coroutineScope = rememberCoroutineScope()
-    var aiSuggestion by remember { mutableStateOf<String?>(null) }
-    var isLoadingAi by remember { mutableStateOf(false) }
+    val currentTask = task ?: return
 
     Scaffold(
         topBar = {
@@ -52,14 +51,7 @@ fun TaskDetailScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { 
-                            isLoadingAi = true
-                            coroutineScope.launch {
-                                kotlinx.coroutines.delay(1000)
-                                aiSuggestion = "• Buy reusable bags\n• Check for discount coupons\n• Buy bottled water"
-                                isLoadingAi = false
-                            }
-                        },
+                        onClick = { viewModel.runAiBreakdown("dummy-key") },
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         elevation = FloatingActionButtonDefaults.elevation()
                     ) {
@@ -85,12 +77,12 @@ fun TaskDetailScreen(
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                Text(text = task.title, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold))
+                Text(text = currentTask.title, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold))
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 TextField(
-                    value = task.description, onValueChange = { }, placeholder = { Text("Add notes...") },
+                    value = currentTask.description, onValueChange = { }, placeholder = { Text("Add notes...") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -107,20 +99,11 @@ fun TaskDetailScreen(
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
                 
-                if (aiSuggestion != null) {
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("AI Suggestions", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(aiSuggestion!!, style = MaterialTheme.typography.bodyMedium)
-                        }
+                // Real subtasks observation would go here
+                currentTask.subtasks.forEach { subtask ->
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+                        Checkbox(checked = subtask.isCompleted, onCheckedChange = {})
+                        Text(subtask.title, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }

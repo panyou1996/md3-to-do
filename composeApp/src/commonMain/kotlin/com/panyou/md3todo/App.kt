@@ -92,8 +92,7 @@ fun App() {
                         is Screen.TaskDetail -> {
                             TaskDetailScreen(
                                 taskId = screen.taskId,
-                                onBack = { NavigationManager.goBack() },
-                                taskViewModel = taskViewModel
+                                onBack = { NavigationManager.goBack() }
                             )
                         }
                         is Screen.Lists -> {
