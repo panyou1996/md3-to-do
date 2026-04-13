@@ -23,7 +23,8 @@ fun MyDayScreen(
     tasks: List<Task>,
     onMenuClick: () -> Unit,
     onTaskClick: (Task) -> Unit,
-    onAddTask: (String) -> Unit
+    onAddTask: (String) -> Unit,
+    onTaskCheckChanged: (Task, Boolean) -> Unit
 ) {
     var newTaskTitle by remember { mutableStateOf("") }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
