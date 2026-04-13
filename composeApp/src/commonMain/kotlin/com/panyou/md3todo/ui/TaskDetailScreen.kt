@@ -1,14 +1,17 @@
 package com.panyou.md3todo.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.panyou.md3todo.domain.model.Task
 import kotlinx.coroutines.launch
 
@@ -22,67 +25,122 @@ fun TaskDetailScreen(
     var aiSuggestion by remember { mutableStateOf<String?>(null) }
     var isLoadingAi by remember { mutableStateOf(false) }
     
-    // Fake fetching task from ID
+    // Mock task
     val task = Task(
         id = taskId,
-        title = "Complete the architecture review",
-        description = "Review the current KMP setup and ensure Room and Ktor are correctly configured.",
+        title = "Go grocery shopping",
+        description = "Need to buy fresh vegetables, organic milk, and some healthy snacks for the week.",
         isImportant = true,
-        createdAt = 0L
+        createdAt = 0L,
+        myDayDate = 123L
     )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Task Detail") },
+                title = { Text("Task Details", style = MaterialTheme.typography.titleMedium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
+                },
+                actions = {
+                    IconButton(onClick = { }) { Icon(Icons.Default.Flag, contentDescription = "Priority") }
+                    IconButton(onClick = { }) { Icon(Icons.Default.MoreVert, contentDescription = "More") }
                 }
             )
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { 
-                    isLoadingAi = true
-                    // Simulate AI call like FluxDO
-                    coroutineScope.launch {
-                        kotlinx.coroutines.delay(1500)
-                        aiSuggestion = "1. Review Room KMP schemas.\n2. Validate Ktor network interceptors.\n3. Check DI graph in Koin."
-                        isLoadingAi = false
-                    }
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    IconButton(onClick = { }) { Icon(Icons.Default.Label, contentDescription = "Tags") }
+                    IconButton(onClick = { }) { Icon(Icons.Default.FormatListBulleted, contentDescription = "Subtasks") }
+                    IconButton(onClick = { }) { Icon(Icons.Default.AttachFile, contentDescription = "Attach") }
                 },
-                icon = { Icon(Icons.Default.Star, contentDescription = "AI") },
-                text = { Text("AI Breakdown") }
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = { 
+                            isLoadingAi = true
+                            coroutineScope.launch {
+                                kotlinx.coroutines.delay(1000)
+                                aiSuggestion = "• Buy reusable bags\n• Check for discount coupons\n• Buy bottled water"
+                                isLoadingAi = false
+                            }
+                        },
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        elevation = FloatingActionButtonDefaults.bottomAppBarElevation()
+                    ) {
+                        Icon(Icons.Default.Star, contentDescription = "AI")
+                    }
+                }
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding).padding(16.dp).fillMaxSize()) {
-            Text(task.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            OutlinedTextField(
-                value = task.description,
-                onValueChange = {},
-                modifier = Modifier.fillMaxWidth().weight(0.4f),
-                label = { Text("Description (Markdown Supported)") }
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            if (isLoadingAi) {
-                CircularProgressIndicator()
-                Text("AI is thinking...")
-            } else if (aiSuggestion != null) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-                    modifier = Modifier.fillMaxWidth().weight(0.6f)
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+                .padding(horizontal = 20.dp)
+                .fillMaxSize()
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                // List indicator
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("AI Suggested Subtasks:", fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(aiSuggestion ?: "")
+                    Text(
+                        "Inbox", 
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                // Title
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Description area
+                TextField(
+                    value = task.description,
+                    onValueChange = { },
+                    placeholder = { Text("Add notes...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                        unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                    ),
+                    textStyle = MaterialTheme.typography.bodyLarge
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                if (isLoadingAi) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+                
+                if (aiSuggestion != null) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("AI Suggestions", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(aiSuggestion!!, style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }

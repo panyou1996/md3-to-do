@@ -32,34 +32,78 @@ fun App() {
             // Fake data for UI demo
             val dummyTasks = listOf(
                 Task("1", "Buy groceries", isCompleted = false, createdAt = 0L),
-                Task("2", "Prepare Q2 presentation", isImportant = true, description = "**Crucial**: Needs the latest revenue data.", createdAt = 0L),
-                Task("3", "Call the bank", isCompleted = true, createdAt = 0L)
+                Task("2", "Prepare Q2 presentation", isImportant = true, description = "**Crucial**: Needs the latest revenue data.", createdAt = 0L, myDayDate = 123L),
+                Task("3", "Call the bank", isCompleted = true, createdAt = 0L),
+                Task("4", "Schedule AI review", isCompleted = false, createdAt = 0L, myDayDate = 123L)
             )
 
-            when (val screen = currentScreen) {
-                is Screen.MyDay -> {
-                    MyDayScreen(
-                        tasks = dummyTasks,
-                        onMenuClick = { NavigationManager.navigateTo(Screen.Stats) }, // Temporarily map menu to stats for easy access
-                        onTaskClick = { NavigationManager.navigateTo(Screen.TaskDetail(it.id)) },
-                        onAddTask = { /* TODO */ }
-                    )
+            Scaffold(
+                bottomBar = {
+                    NavigationBar(
+                        tonalElevation = 8.dp,
+                        windowInsets = WindowInsets.navigationBars
+                    ) {
+                        NavigationBarItem(
+                            selected = currentScreen is Screen.MyDay,
+                            onClick = { NavigationManager.navigateTo(Screen.MyDay) },
+                            icon = { Icon(androidx.compose.material.icons.Icons.Default.List, contentDescription = "Tasks") },
+                            label = { Text("Tasks") }
+                        )
+                        NavigationBarItem(
+                            selected = false,
+                            onClick = { },
+                            icon = { Icon(androidx.compose.material.icons.Icons.Default.DateRange, contentDescription = "Calendar") },
+                            label = { Text("Calendar") }
+                        )
+                        NavigationBarItem(
+                            selected = false,
+                            onClick = { },
+                            icon = { Icon(androidx.compose.material.icons.Icons.Default.GridView, contentDescription = "Matrix") },
+                            label = { Text("Matrix") }
+                        )
+                        NavigationBarItem(
+                            selected = currentScreen is Screen.Stats,
+                            onClick = { NavigationManager.navigateTo(Screen.Stats) },
+                            icon = { Icon(androidx.compose.material.icons.Icons.Default.PieChart, contentDescription = "Stats") },
+                            label = { Text("Stats") }
+                        )
+                        NavigationBarItem(
+                            selected = false,
+                            onClick = { },
+                            icon = { Icon(androidx.compose.material.icons.Icons.Default.Person, contentDescription = "Profile") },
+                            label = { Text("Profile") }
+                        )
+                    }
                 }
-                is Screen.Stats -> {
-                    StatsScreen(onBack = { NavigationManager.goBack() })
-                }
-                is Screen.TaskDetail -> {
-                    TaskDetailScreen(
-                        taskId = screen.taskId,
-                        onBack = { NavigationManager.goBack() }
-                    )
-                }
-                is Screen.Lists -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Lists Screen (Coming Soon)")
+            ) { padding ->
+                Box(modifier = Modifier.padding(padding)) {
+                    when (val screen = currentScreen) {
+                        is Screen.MyDay -> {
+                            MyDayScreen(
+                                tasks = dummyTasks,
+                                onMenuClick = { /* TODO: Open Drawer */ },
+                                onTaskClick = { NavigationManager.navigateTo(Screen.TaskDetail(it.id)) },
+                                onAddTask = { /* TODO */ }
+                            )
+                        }
+                        is Screen.Stats -> {
+                            StatsScreen(onBack = { NavigationManager.goBack() })
+                        }
+                        is Screen.TaskDetail -> {
+                            TaskDetailScreen(
+                                taskId = screen.taskId,
+                                onBack = { NavigationManager.goBack() }
+                            )
+                        }
+                        is Screen.Lists -> {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("Lists Screen")
+                            }
+                        }
                     }
                 }
             }
+
         }
     }
 }

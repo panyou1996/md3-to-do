@@ -6,13 +6,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.panyou.md3todo.domain.model.Task
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,59 +25,78 @@ fun MyDayScreen(
     onAddTask: (String) -> Unit
 ) {
     var newTaskTitle by remember { mutableStateOf("") }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = { 
-                    Column {
-                        Text("My Day", fontWeight = FontWeight.ExtraBold)
-                        Text(
-                            "Sunday, April 12", 
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        "Inbox", 
+                        fontWeight = FontWeight.Black,
+                        fontSize = 32.sp
+                    ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = onMenuClick) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu")
                     }
-                }
+                },
+                actions = {
+                    IconButton(onClick = { /* TODO */ }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                    }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { 
-                    if (newTaskTitle.isNotBlank()) {
-                        onAddTask(newTaskTitle)
-                        newTaskTitle = ""
-                    }
-                },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            LargeFloatingActionButton(
+                onClick = { /* Could open a dialog or focus input */ },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = androidx.compose.foundation.shape.CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Task")
+                Icon(Icons.Default.Add, contentDescription = "Add Task", modifier = Modifier.size(36.dp))
             }
         },
         bottomBar = {
+            // Quick Add Bar at the bottom
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+                tonalElevation = 3.dp,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                TextField(
-                    value = newTaskTitle,
-                    onValueChange = { newTaskTitle = it },
-                    placeholder = { Text("Add a task...") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                        unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .imePadding()
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextField(
+                        value = newTaskTitle,
+                        onValueChange = { newTaskTitle = it },
+                        placeholder = { Text("Add a task to Inbox...") },
+                        modifier = Modifier.weight(1f),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                            unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                            disabledContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                            focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                            unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                        ),
+                        singleLine = true
                     )
-                )
+                    if (newTaskTitle.isNotBlank()) {
+                        IconButton(onClick = {
+                            onAddTask(newTaskTitle)
+                            newTaskTitle = ""
+                        }) {
+                            Icon(Icons.Default.Add, tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
             }
         }
     ) { padding ->
@@ -83,14 +104,55 @@ fun MyDayScreen(
             contentPadding = padding,
             modifier = Modifier.fillMaxSize()
         ) {
-            items(tasks) { task ->
-                TaskCard(
-                    task = task,
-                    onClick = { onTaskClick(task) },
-                    onCheckChanged = { /* TODO */ }
-                )
+            // Grouping Logic (Simplified for Demo)
+            val todayTasks = tasks.filter { it.myDayDate != null || !it.isCompleted }
+            
+            if (todayTasks.isNotEmpty()) {
+                item {
+                    SectionHeader("Today", todayTasks.size)
+                }
+                items(todayTasks) { task ->
+                    TaskCard(
+                        task = task,
+                        onClick = { onTaskClick(task) },
+                        onCheckChanged = { /* TODO */ }
+                    )
+                }
             }
-            item { Spacer(modifier = Modifier.height(80.dp)) } // Padding for bottom input
+            
+            item { Spacer(modifier = Modifier.height(100.dp)) }
         }
     }
+}
+
+@Composable
+fun SectionHeader(title: String, count: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        )
+        Text(
+            text = "$count",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+        )
+    }
+}
+
+// Add missing import for nestedScroll
+@Composable
+fun Modifier.nestedScroll(connection: androidx.compose.ui.input.nestedscroll.NestedScrollConnection): Modifier {
+    return this.then(
+        androidx.compose.ui.input.nestedscroll.nestedScroll(connection)
+    )
 }
