@@ -14,9 +14,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.materialkolor.DynamicMaterialTheme
 import org.koin.compose.KoinApplication
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import com.panyou.md3todo.di.appModule
 import com.panyou.md3todo.ui.*
+import com.panyou.md3todo.ui.viewmodel.TaskViewModel
 import com.panyou.md3todo.domain.model.Task
 
 @Composable
@@ -32,7 +33,7 @@ fun App() {
             animate = true // Enable fluid MD3 transitions
         ) {
             val currentScreen by NavigationManager.currentScreen
-            val taskViewModel: TaskViewModel = koinInject()
+            val taskViewModel = koinViewModel<TaskViewModel>()
             val tasks by taskViewModel.tasks.collectAsState()
 
             Scaffold(
@@ -81,10 +82,8 @@ fun App() {
                                 tasks = tasks,
                                 onMenuClick = { /* TODO: Open Drawer */ },
                                 onTaskClick = { NavigationManager.navigateTo(Screen.TaskDetail(it.id)) },
-                                onAddTask = { title -> taskViewModel.addTask(title) },
-                                onTaskCheckChanged = { task, isCompleted -> 
-                                    taskViewModel.toggleTaskCompletion(task, isCompleted) 
-                                }
+                                onAddTask = { taskViewModel.addTask(it) },
+                                onTaskCheckChanged = { task, isCompleted -> taskViewModel.toggleTask(task.id) }
                             )
                         }
                         is Screen.Stats -> {
