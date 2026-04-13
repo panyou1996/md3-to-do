@@ -7,12 +7,14 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.materialkolor.DynamicMaterialTheme
 import org.koin.compose.KoinApplication
+import org.koin.compose.koinInject
 import com.panyou.md3todo.di.appModule
 import com.panyou.md3todo.ui.*
 import com.panyou.md3todo.domain.model.Task
@@ -30,14 +32,8 @@ fun App() {
             animate = true // Enable fluid MD3 transitions
         ) {
             val currentScreen by NavigationManager.currentScreen
-            
-            // Fake data for UI demo
-            val dummyTasks = listOf(
-                Task("1", "Buy groceries", isCompleted = false, createdAt = 0L),
-                Task("2", "Prepare Q2 presentation", isImportant = true, description = "**Crucial**: Needs the latest revenue data.", createdAt = 0L, myDayDate = 123L),
-                Task("3", "Call the bank", isCompleted = true, createdAt = 0L),
-                Task("4", "Schedule AI review", isCompleted = false, createdAt = 0L, myDayDate = 123L)
-            )
+            val taskViewModel: TaskViewModel = koinInject()
+            val tasks by taskViewModel.tasks.collectAsState()
 
             Scaffold(
                 bottomBar = {
@@ -82,10 +78,13 @@ fun App() {
                     when (val screen = currentScreen) {
                         is Screen.MyDay -> {
                             MyDayScreen(
-                                tasks = dummyTasks,
+                                tasks = tasks,
                                 onMenuClick = { /* TODO: Open Drawer */ },
                                 onTaskClick = { NavigationManager.navigateTo(Screen.TaskDetail(it.id)) },
-                                onAddTask = { /* TODO */ }
+                                onAddTask = { title -> taskViewModel.addTask(title) },
+                                onTaskCheckChanged = { task, isCompleted -> 
+                                    taskViewModel.toggleTaskCompletion(task, isCompleted) 
+                                }
                             )
                         }
                         is Screen.Stats -> {
@@ -94,7 +93,8 @@ fun App() {
                         is Screen.TaskDetail -> {
                             TaskDetailScreen(
                                 taskId = screen.taskId,
-                                onBack = { NavigationManager.goBack() }
+                                onBack = { NavigationManager.goBack() },
+                                taskViewModel = taskViewModel
                             )
                         }
                         is Screen.Lists -> {

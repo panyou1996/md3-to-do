@@ -2,7 +2,6 @@ package com.panyou.md3todo.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.material.icons.Icons
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -19,58 +18,59 @@ import kotlinx.coroutines.launch
 @Composable
 fun TaskDetailScreen(
     taskId: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    taskViewModel: TaskViewModel
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    var aiSuggestion by remember { mutableStateOf<String?>(null) }
-    var isLoadingAi by remember { mutableStateOf(false) }
+    val tasks by taskViewModel.tasks.collectAsState()
+    val aiSuggestion by taskViewModel.aiSuggestion.collectAsState()
+    val isLoadingAi by taskViewModel.isLoadingAi.collectAsState()
     
-    // Mock task
-    val task = Task(
-        id = taskId,
-        title = "Go grocery shopping",
-        description = "Need to buy fresh vegetables, organic milk, and some healthy snacks for the week.",
-        isImportant = true,
-        createdAt = 0L,
-        myDayDate = 123L
-    )
+    val task = tasks.find { it.id == taskId }
+
+    if (task == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Task not found.")
+        }
+        return
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Task Details", style = MaterialTheme.typography.titleMedium) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(androidx.compose.material.icons.Icons.Default.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = { 
+                        taskViewModel.clearAiSuggestion()
+                        onBack() 
+                    }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.Flag, contentDescription = "Priority") }
-                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.MoreVert, contentDescription = "More") }
+                    IconButton(onClick = { taskViewModel.toggleTaskImportance(task, !task.isImportant) }) { 
+                        Icon(
+                            if (task.isImportant) Icons.Default.Star else Icons.Default.StarBorder, 
+                            contentDescription = "Priority"
+                        ) 
+                    }
+                    IconButton(onClick = { }) { Icon(Icons.Default.MoreVert, contentDescription = "More") }
                 }
             )
         },
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.Label, contentDescription = "Tags") }
-                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.FormatListBulleted, contentDescription = "Subtasks") }
-                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.AttachFile, contentDescription = "Attach") }
+                    IconButton(onClick = { }) { Icon(Icons.Default.Label, contentDescription = "Tags") }
+                    IconButton(onClick = { }) { Icon(Icons.Default.FormatListBulleted, contentDescription = "Subtasks") }
+                    IconButton(onClick = { }) { Icon(Icons.Default.AttachFile, contentDescription = "Attach") }
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { 
-                            isLoadingAi = true
-                            coroutineScope.launch {
-                                kotlinx.coroutines.delay(1000)
-                                aiSuggestion = "• Buy reusable bags\n• Check for discount coupons\n• Buy bottled water"
-                                isLoadingAi = false
-                            }
-                        },
+                        onClick = { taskViewModel.generateAiBreakdown(task.title) },
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         elevation = FloatingActionButtonDefaults.elevation()
                     ) {
-                        Icon(androidx.compose.material.icons.Icons.Default.Star, contentDescription = "AI")
+                        Icon(Icons.Default.Star, contentDescription = "AI")
                     }
                 }
             )
@@ -134,7 +134,7 @@ fun TaskDetailScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(androidx.compose.material.icons.Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("AI Suggestions", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                             }

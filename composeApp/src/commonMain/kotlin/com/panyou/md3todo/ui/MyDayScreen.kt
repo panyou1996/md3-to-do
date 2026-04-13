@@ -116,7 +116,7 @@ fun MyDayScreen(
                     TaskCard(
                         task = task,
                         onClick = { onTaskClick(task) },
-                        onCheckChanged = { /* TODO */ }
+                        onCheckChanged = { isChecked -> onTaskCheckChanged(task, isChecked) }
                     )
                 }
             }

@@ -52,6 +52,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             
             implementation(libs.markdown.renderer)
+            implementation(libs.kotlinx.datetime)
         }
     }
 }
