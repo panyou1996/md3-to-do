@@ -8,17 +8,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.panyou.md3todo.ui.viewmodel.TaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsScreen(onBack: () -> Unit) {
+fun StatsScreen(onBack: () -> Unit, taskViewModel: TaskViewModel) {
+    val stats by taskViewModel.stats.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -44,10 +47,10 @@ fun StatsScreen(onBack: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.height(240.dp)
             ) {
-                item { StatCard("Daily Tasks", "12", "+3") }
-                item { StatCard("Focus Time", "4h 20m", "+15m") }
-                item { StatCard("Total Tasks", "458", "") }
-                item { StatCard("Streak", "15 days", "🔥") }
+                item { StatCard("Daily Tasks", "${stats.dailyCompleted}", "+3") }
+                item { StatCard("Focus Time", "${stats.focusTimeMinutes / 60}h ${stats.focusTimeMinutes % 60}m", "+15m") }
+                item { StatCard("Total Tasks", "${stats.totalCompleted}", "") }
+                item { StatCard("Streak", "${stats.streakDays} days", "🔥") }
             }
 
             Card(
@@ -66,18 +69,21 @@ fun StatsScreen(onBack: () -> Unit) {
                         
                         Canvas(modifier = Modifier.fillMaxSize()) {
                             val strokeWidth = 25.dp.toPx()
-                            drawArc(
-                                color = primaryColor, startAngle = -90f, sweepAngle = 200f,
-                                useCenter = false, style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                            )
-                            drawArc(
-                                color = secondaryColor, startAngle = 115f, sweepAngle = 80f,
-                                useCenter = false, style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                            )
-                            drawArc(
-                                color = tertiaryColor, startAngle = 200f, sweepAngle = 65f,
-                                useCenter = false, style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                            )
+                            var currentAngle = -90f
+                            
+                            // Dynamically draw arcs based on stats.distribution
+                            val colors = listOf(primaryColor, secondaryColor, tertiaryColor)
+                            stats.distribution.forEachIndexed { index, percent ->
+                                val sweep = percent * 360f
+                                drawArc(
+                                    color = colors[index % colors.size], 
+                                    startAngle = currentAngle, 
+                                    sweepAngle = sweep,
+                                    useCenter = false, 
+                                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                                )
+                                currentAngle += sweep
+                            }
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("Total", style = MaterialTheme.typography.labelMedium)

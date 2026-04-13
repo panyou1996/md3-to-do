@@ -87,7 +87,7 @@ fun App() {
                             )
                         }
                         is Screen.Stats -> {
-                            StatsScreen(onBack = { NavigationManager.goBack() })
+                            StatsScreen(onBack = { NavigationManager.goBack() }, taskViewModel = taskViewModel)
                         }
                         is Screen.TaskDetail -> {
                             TaskDetailScreen(
