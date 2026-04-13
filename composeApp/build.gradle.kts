@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.material.kolor)
             implementation(libs.lifecycle.viewmodel.compose)
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)

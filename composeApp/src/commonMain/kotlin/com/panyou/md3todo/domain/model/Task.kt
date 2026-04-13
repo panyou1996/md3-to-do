@@ -1,13 +1,19 @@
 package com.panyou.md3todo.domain.model
 
+enum class Priority(val level: Int) {
+    NONE(0), LOW(1), MEDIUM(2), HIGH(3)
+}
+
 data class Task(
     val id: String,
     val title: String,
-    val description: String = "", // To be rendered as Markdown
+    val description: String = "",
     val isCompleted: Boolean = false,
-    val isImportant: Boolean = false,
-    val myDayDate: Long? = null, // Unix timestamp indicating if it's in "My Day"
-    val dueDate: Long? = null, // Reminders / Due
-    val listId: String? = null, // Belongs to a specific folder/list
+    val priority: Priority = Priority.NONE,
+    val tags: List<String> = emptyList(),
+    val subtasks: List<Subtask> = emptyList(),
+    val myDayDate: Long? = null,
+    val dueDate: Long? = null,
+    val listId: String? = null,
     val createdAt: Long
 )
