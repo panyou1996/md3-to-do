@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +71,7 @@ fun MyDayScreen(
                 Row(
                     modifier = Modifier
                         .padding(16.dp)
-                        .imePadding()
+                        .windowInsetsPadding(WindowInsets.ime)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -147,12 +148,4 @@ fun SectionHeader(title: String, count: Int) {
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
     }
-}
-
-// Add missing import for nestedScroll
-@Composable
-fun Modifier.nestedScroll(connection: androidx.compose.ui.input.nestedscroll.NestedScrollConnection): Modifier {
-    return this.then(
-        androidx.compose.ui.input.nestedscroll.nestedScroll(connection)
-    )
 }

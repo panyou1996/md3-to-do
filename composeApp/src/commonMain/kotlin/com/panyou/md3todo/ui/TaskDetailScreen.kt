@@ -2,7 +2,7 @@ package com.panyou.md3todo.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.material.icons.Icons
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -41,21 +41,21 @@ fun TaskDetailScreen(
                 title = { Text("Task Details", style = MaterialTheme.typography.titleMedium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(androidx.compose.material.icons.Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) { Icon(Icons.Default.Flag, contentDescription = "Priority") }
-                    IconButton(onClick = { }) { Icon(Icons.Default.MoreVert, contentDescription = "More") }
+                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.Flag, contentDescription = "Priority") }
+                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.MoreVert, contentDescription = "More") }
                 }
             )
         },
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    IconButton(onClick = { }) { Icon(Icons.Default.Label, contentDescription = "Tags") }
-                    IconButton(onClick = { }) { Icon(Icons.Default.FormatListBulleted, contentDescription = "Subtasks") }
-                    IconButton(onClick = { }) { Icon(Icons.Default.AttachFile, contentDescription = "Attach") }
+                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.Label, contentDescription = "Tags") }
+                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.FormatListBulleted, contentDescription = "Subtasks") }
+                    IconButton(onClick = { }) { Icon(androidx.compose.material.icons.Icons.Default.AttachFile, contentDescription = "Attach") }
                 },
                 floatingActionButton = {
                     FloatingActionButton(
@@ -68,9 +68,9 @@ fun TaskDetailScreen(
                             }
                         },
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarElevation()
+                        elevation = FloatingActionButtonDefaults.elevation()
                     ) {
-                        Icon(Icons.Default.Star, contentDescription = "AI")
+                        Icon(androidx.compose.material.icons.Icons.Default.Star, contentDescription = "AI")
                     }
                 }
             )
@@ -134,7 +134,7 @@ fun TaskDetailScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(androidx.compose.material.icons.Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("AI Suggestions", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                             }

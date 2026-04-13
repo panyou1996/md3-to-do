@@ -1,14 +1,16 @@
 package com.panyou.md3todo
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.materialkolor.DynamicMaterialTheme
 import org.koin.compose.KoinApplication
 import com.panyou.md3todo.di.appModule
@@ -46,37 +48,37 @@ fun App() {
                         NavigationBarItem(
                             selected = currentScreen is Screen.MyDay,
                             onClick = { NavigationManager.navigateTo(Screen.MyDay) },
-                            icon = { Icon(androidx.compose.material.icons.Icons.Default.List, contentDescription = "Tasks") },
+                            icon = { Icon(Icons.Default.List, contentDescription = "Tasks") },
                             label = { Text("Tasks") }
                         )
                         NavigationBarItem(
                             selected = false,
                             onClick = { },
-                            icon = { Icon(androidx.compose.material.icons.Icons.Default.DateRange, contentDescription = "Calendar") },
+                            icon = { Icon(Icons.Default.DateRange, contentDescription = "Calendar") },
                             label = { Text("Calendar") }
                         )
                         NavigationBarItem(
                             selected = false,
                             onClick = { },
-                            icon = { Icon(androidx.compose.material.icons.Icons.Default.GridView, contentDescription = "Matrix") },
+                            icon = { Icon(Icons.Default.GridView, contentDescription = "Matrix") },
                             label = { Text("Matrix") }
                         )
                         NavigationBarItem(
                             selected = currentScreen is Screen.Stats,
                             onClick = { NavigationManager.navigateTo(Screen.Stats) },
-                            icon = { Icon(androidx.compose.material.icons.Icons.Default.PieChart, contentDescription = "Stats") },
+                            icon = { Icon(Icons.Default.PieChart, contentDescription = "Stats") },
                             label = { Text("Stats") }
                         )
                         NavigationBarItem(
                             selected = false,
                             onClick = { },
-                            icon = { Icon(androidx.compose.material.icons.Icons.Default.Person, contentDescription = "Profile") },
+                            icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
                             label = { Text("Profile") }
                         )
                     }
                 }
             ) { padding ->
-                Box(modifier = Modifier.padding(padding)) {
+                Box(modifier = Modifier.padding(padding).fillMaxSize()) {
                     when (val screen = currentScreen) {
                         is Screen.MyDay -> {
                             MyDayScreen(
@@ -103,7 +105,6 @@ fun App() {
                     }
                 }
             }
-
         }
     }
 }

@@ -35,6 +35,13 @@ androidx-material = { group = "com.google.android.material", name = "material", 
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose" }
+compose-icons-extended = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-plugin" } # Wait, CMP uses a different way for icons.
+# For Compose Multiplatform, icons are usually in compose.material.icons.extended if available.
+# Actually, the standard way in CMP is:
+# implementation(compose.components.resources)
+# and for icons:
+# implementation("org.jetbrains.compose.material:material-icons-extended:1.6.10")
+
 
 # Koin & Architecture
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }

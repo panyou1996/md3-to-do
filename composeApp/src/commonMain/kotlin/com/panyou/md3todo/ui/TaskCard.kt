@@ -1,6 +1,7 @@
 package com.panyou.md3todo.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -16,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mikepenz.markdown.m3.Markdown
 import com.panyou.md3todo.domain.model.Task
 
 @Composable
@@ -99,12 +99,4 @@ fun TaskCard(task: Task, onClick: () -> Unit, onCheckChanged: (Boolean) -> Unit)
             }
         }
     }
-}
-
-// Extension to easily add border
-@Composable
-fun Modifier.border(width: androidx.compose.ui.unit.Dp, color: Color, shape: androidx.compose.ui.graphics.Shape): Modifier {
-    return this.then(
-        androidx.compose.foundation.border(width, color, shape)
-    )
 }
