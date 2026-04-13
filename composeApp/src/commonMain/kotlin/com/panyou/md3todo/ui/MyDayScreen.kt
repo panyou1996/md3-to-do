@@ -95,7 +95,7 @@ fun MyDayScreen(
                             onAddTask(newTaskTitle)
                             newTaskTitle = ""
                         }) {
-                            Icon(Icons.Default.Add, tint = MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
